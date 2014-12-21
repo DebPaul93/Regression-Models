@@ -1,0 +1,67 @@
+---
+title: 'Mileage vs Transmission type : Regression Models(Coursera)'
+author: "Debjyoti Paul"
+date: "Sunday, December 21, 2014"
+output: pdf_document
+keep_md: yes
+---
+Executive Summary
+--------------------------------------------------------
+In this project, the dependency of mileage on Transmission (automatic or manual) in an automobile is analyzed using **mtcars** data <https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html>. By fitting a regression model, inference is drawn on the influence on mileage due to transmission mode.
+
+Analysis
+--------------------------------------------------------
+**mtcars** data frame is loaded and  the data in **am** variable is stored as a logical **autm** variable.
+
+```{r echo=TRUE, eval=TRUE}
+data( mtcars )
+mtcars$autm <- mtcars$am == 0
+attach( mtcars )
+```
+
+Some exploratory data analysis on the distribution of the automatic variable is depicted in (Appendix).
+
+Initially the data is analzed with the Ordinary Least Squares (OLS) model.
+
+```{r echo=TRUE, eval=TRUE}
+ls <- lm( mpg ~ autm, data=mtcars )
+summary( ls )
+```
+
+The estimation clearly indicates a strong negative influence on mileage due to automatic transmission.
+
+The model is estimated using **Weighted Least Squares** (WLS), using the weight (**wt**) varible to facilitate better fitting. 
+
+```{r echo=TRUE, eval=TRUE}
+
+wls = lm (mpg ~ autm, data=mtcars,weights=(1/mtcars$wt^2))
+
+summary(wls)
+```
+
+The summary depicts a stronger negative influence and the coeffecients are more significant than the that with Ordinary Least Square. The residuals for both estimations is plotted in (Appendix).
+
+
+
+Appendix: Figures
+--------------------------------------------------------
+```{r echo=TRUE, eval=TRUE, fig.width=10, fig.height=3}
+par( mfrow=c(1,2) )
+hist( mpg[which(autm == TRUE)] , main="Distribution of mileage for automatic transmission",xlab="mileage(mpg)")
+hist( mpg[which(autm == FALSE)],main="Distribution of mileage for manual transmission",xlab="mileage(mpg)" )
+```
+There is a strong correlation between mode of transmission and the weight of the automible. This dependence can be exploited as wieghts to yeild better results.
+
+--------------------------------------------------------
+```{r echo=FALSE, eval=TRUE, fig.width=10, fig.height=3}
+plot( mtcars$autm, mtcars$wt, xlab = 'Transmission mode', ylab = 'Weight')
+```
+
+The residuals of the Ordinary Least Square and Weighted Least Sqaure estimations.
+
+```{r echo=TRUE, eval=TRUE, fig.width=10, fig.height=3}
+par( mfrow=c(1,2) )
+hist( ls$residuals , main="Distribution of residuals of ordinary least square",xlab="residuals" )
+hist(wls$residuals , main="Distribution of residuals of weighted least square",xlab="residuals")
+
+```
